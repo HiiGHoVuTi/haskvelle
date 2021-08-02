@@ -31,13 +31,4 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          stack build
-          cp .stack-work/dist/*/*/build/haskvelle-exe/haskvelle-exe.exe ./velle.exe
-      - name: Release file
-        uses: djnicholson/release-action@v2.10
-        with:
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          release-name: Windows build
-          asset-name: haskvelle
-          file: ./velle.exe
+      - run: echo "do something :/"
