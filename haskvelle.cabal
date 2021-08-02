@@ -32,22 +32,39 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , configurator
     , data-default
+    , directory
+    , plugins
+    , pretty-simple
+    , process
     , structured-cli
+    , text
+    , turtle
   default-language: Haskell2010
 
 executable haskvelle-exe
   main-is: Main.hs
   other-modules:
+      Colors
+      Config
+      Core
       Paths_haskvelle
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , configurator
     , data-default
+    , directory
     , haskvelle
+    , plugins
+    , pretty-simple
+    , process
     , structured-cli
+    , text
+    , turtle
   default-language: Haskell2010
 
 test-suite haskvelle-test
@@ -60,7 +77,14 @@ test-suite haskvelle-test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , configurator
     , data-default
+    , directory
     , haskvelle
+    , plugins
+    , pretty-simple
+    , process
     , structured-cli
+    , text
+    , turtle
   default-language: Haskell2010

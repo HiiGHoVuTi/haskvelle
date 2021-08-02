@@ -23,6 +23,13 @@ dependencies:
 - base >= 4.7 && < 5
 - structured-cli
 - data-default
+- directory
+- process
+- turtle
+- plugins
+- configurator
+- pretty-simple
+- text
 
 library:
   source-dirs: src
@@ -35,6 +42,11 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -Wall
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
     dependencies:
     - haskvelle
 
