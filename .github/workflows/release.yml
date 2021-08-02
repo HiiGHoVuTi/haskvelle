@@ -1,0 +1,28 @@
+
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  workflow_dispatch:
+
+jobs:
+  release-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          stack build
+          cp .stack-work/dist/*/*/build/haskvelle-exe/haskvelle-exe ./velle
+      - name: Release file
+        uses: djnicholson/release-action@v2.10
+        with:
+          # GitHub auth token
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          release-name: Linux build
+          asset-name: executable
+          file: ./velle
