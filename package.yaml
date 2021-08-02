@@ -30,6 +30,7 @@ dependencies:
 - configurator
 - pretty-simple
 - text
+- unordered-containers
 
 library:
   source-dirs: src

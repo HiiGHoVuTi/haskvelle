@@ -6,7 +6,9 @@ module Config (
 import System.Console.StructuredCLI
 import Data.Configurator
 import System.Directory
-import Data.Text (pack)
+import Data.Text (unpack)
+import Data.HashMap.Strict hiding (map)
+import Data.List
 import Colors
 
 config' :: Commands ()
@@ -24,7 +26,10 @@ configDisplayGroup :: Commands ()
 configDisplayGroup = colorCustom "display-namespace" "displays a single namespace in the config" $ \x -> do
         files <- listDirectory ".velle"
         cfg <- load . map Optional . map (".velle/" <>) $ files
-        map' <- getMap $ subconfig (pack.head$ x) cfg
+        map' <- let
+          keyPrefix    = head x
+          map''        = getMap cfg
+          in filterWithKey (\k _ -> isPrefixOf keyPrefix . unpack$ k) <$> map''
         prettyPrint map'
         return NoAction
 
