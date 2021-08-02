@@ -24,5 +24,5 @@ jobs:
           # GitHub auth token
           token: ${{ secrets.API_TOKEN_GITHUB }}
           release-name: Linux build
-          asset-name: velle
+          asset-name: haskvelle
           file: ./velle
