@@ -9,45 +9,39 @@ import System.Directory
 import System.Process
 import System.Exit
 import Colors
+import Utils
 
 import Control.Monad (forM_)
 
-import Data.Configurator
-import Data.Configurator.Types
-import Data.HashMap.Strict hiding (map)
-import Data.List
-import Data.Text (unpack, pack)
-
 import Config
 import Install
+import Repo
 
 root :: Commands ()
 root = do
   core
   config$ do
-    core
+    coreDown
     velleInit
-  install core
+  install coreDown
+  local coreDown
+  load
+
+coreDown :: Commands ()
+coreDown = do
+  core
+  up
 
 core :: Commands ()
 core = do
   exit'
-  up
   shell'
   run
 
+
 run :: Commands ()
 run = colorCustom "run" "runs a command from config" $ \x -> do
-  files <- listDirectory ".velle"
-  cfg <- load . map Optional . map (".velle/" <>) $ files
-  map' <- let
-    keyPrefix    = "commands"
-    map''        = getMap cfg
-    in filterWithKey (\k _ -> isPrefixOf keyPrefix . unpack$ k) <$> map''
-  let
-    key    = "commands."<>head x
-    values = map' !? pack key
-    list   = values >>= convert :: Maybe [String]
+  list <- getConfigPropFromFolder ".velle" ("commands."<>head x) :: IO (Maybe [String])
   _ <- case list of
     Just cmds -> do
       forM_ cmds callCommand
@@ -57,7 +51,11 @@ run = colorCustom "run" "runs a command from config" $ \x -> do
 
 shell' :: Commands ()
 shell' = colorCommand "shell" "opens a normal shell" $ do
-  _ <- callCommand "zsh"
+  dir <- getAppUserDataDirectory "velle"
+  cmd <- getConfigPropFromFolder dir "user-preferences.shell"
+  case cmd of
+         Just c  -> callCommand c
+         Nothing -> putStrLn ("No default shell provided." #Error)
   return NoAction
 
 velleInit :: Commands ()
@@ -79,7 +77,7 @@ up :: Commands ()
 up = colorCommand "up" "goes up one level" $ return $ LevelUp 1
 
 exit' :: Commands ()
-exit' = colorCommand "exit" "exits the shell" $ do
+exit' = colorCommand "exit" "exits the velle shell" $ do
   putStrLn ("See you soon !"#OK)
   _ <- exitWith ExitSuccess
   return NoAction

@@ -25,10 +25,13 @@ totalInstallation = colorCommand "whole-installation" "installs manivelle all at
     _ -> error ("Please do." #Error)
   appData <- getAppUserDataDirectory "velle"
   _ <- createDirectory appData
-  _ <- appendFile (appData<>"/main.cfg") ("user-preferences {\n  shell = \"bash\"\n}")
+  -- to refactor using turtle
+  _ <- appendFile (appData<>"/main.cfg") ("user-preferences {\n  shell = \"bash\"\n}\ngithub{\n  \n}")
   putStrLn ("Created the .velle global directory !" #OK)
   _ <- copyFile ("./haskvelle"<>exeExtension) (appData<>"/velle"<>exeExtension)
   putStrLn ("Moved the executable to the correct folder !" #OK)
+  _ <- createDirectory (appData<>"/repos")
+  putStrLn ("Created a folder for future repositories" #OK)
   putStrLn ("Please add this file to PATH, you should be all set: "<>appData<>"/")
   putStrLn ("Once done, you'll have access to the"#Success <> " velle "#Name <> "command !"#Success)
   return$ LevelUp 1
