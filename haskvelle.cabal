@@ -31,11 +31,14 @@ library
   hs-source-dirs:
       src
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , aeson-lens
+    , base >=4.7 && <5
+    , bytestring
     , configurator
     , data-default
     , directory
-    , plugins
+    , hs-duktape
     , pretty-simple
     , process
     , structured-cli
@@ -51,6 +54,7 @@ executable haskvelle-exe
       Config
       Core
       Install
+      Interpreter
       Repo
       Utils
       Paths_haskvelle
@@ -58,12 +62,15 @@ executable haskvelle-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -O3
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , aeson-lens
+    , base >=4.7 && <5
+    , bytestring
     , configurator
     , data-default
     , directory
     , haskvelle
-    , plugins
+    , hs-duktape
     , pretty-simple
     , process
     , structured-cli
@@ -81,12 +88,15 @@ test-suite haskvelle-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , aeson-lens
+    , base >=4.7 && <5
+    , bytestring
     , configurator
     , data-default
     , directory
     , haskvelle
-    , plugins
+    , hs-duktape
     , pretty-simple
     , process
     , structured-cli

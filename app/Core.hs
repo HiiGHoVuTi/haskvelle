@@ -4,7 +4,7 @@ module Core (
             ) where
 
 import System.Console.StructuredCLI
-import System.IO()
+import qualified Data.List
 import System.Directory
 import System.Process
 import System.Exit
@@ -16,6 +16,7 @@ import Control.Monad (forM_)
 import Config
 import Install
 import Repo
+import Interpreter
 
 root :: Commands ()
 root = do
@@ -39,12 +40,23 @@ core = do
   run
 
 
+eval :: String -> String -> IO ()
+eval path s
+  | Data.List.isPrefixOf "interp" s = do
+    source <- s
+      <| words
+      <| tail
+      <| concat
+      <| (path <>)
+      <| readFile
+    interpret source
+  | otherwise = callCommand s
+
 run :: Commands ()
 run = colorCustom "run" "runs a command from config" $ \x -> do
   list <- getConfigPropFromFolder ".velle" ("commands."<>head x) :: IO (Maybe [String])
   _ <- case list of
-    Just cmds -> do
-      forM_ cmds callCommand
+    Just cmds -> forM_ cmds (eval ".velle/")
     Nothing   -> putStrLn ("No commands found." #Error)
   return NoAction
 

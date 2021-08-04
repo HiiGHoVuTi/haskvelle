@@ -38,6 +38,8 @@ packages:
 extra-deps:
   - plugins-1.6.2@sha256:66a21387ae65180b69d3554c5a6e75180bf5d9e60a77e3cad7f259d35678f4e5,2633
   - conf-0.1.1.0@sha256:b244120277e2afa5861ff5146db1f918a84e046bef28c685e585243f48b3710f,2243
+  - jsaddle-0.9.8.0@sha256:d7acf2247cc93c2d8d0959eccf627077c4175c81b762c8d107c7006dda662d05,4418
+  - hs-duktape-1.0.0@sha256:cf0ff26f96ef5a79d9e8230d5e6eef296dd1bee306151a2e4f133a05e2ab469b,1866
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a

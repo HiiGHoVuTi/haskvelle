@@ -18,6 +18,20 @@ packages:
       sha256: e76153d152e5e125860bc20e2d1ab5d224267be1225d5b790c8a7b15b92e6486
   original:
     hackage: conf-0.1.1.0@sha256:b244120277e2afa5861ff5146db1f918a84e046bef28c685e585243f48b3710f,2243
+- completed:
+    hackage: jsaddle-0.9.8.0@sha256:d7acf2247cc93c2d8d0959eccf627077c4175c81b762c8d107c7006dda662d05,4418
+    pantry-tree:
+      size: 4329
+      sha256: 45c8931120722d76150dc14b4092eeef73002a4c3bab6ac1b5b40650dd4b9b0f
+  original:
+    hackage: jsaddle-0.9.8.0@sha256:d7acf2247cc93c2d8d0959eccf627077c4175c81b762c8d107c7006dda662d05,4418
+- completed:
+    hackage: hs-duktape-1.0.0@sha256:cf0ff26f96ef5a79d9e8230d5e6eef296dd1bee306151a2e4f133a05e2ab469b,1866
+    pantry-tree:
+      size: 747
+      sha256: 7139ff5aea172a26d5724769a9ae75fb3738dbc9038ec4d6a89fa5f79b6e9872
+  original:
+    hackage: hs-duktape-1.0.0@sha256:cf0ff26f96ef5a79d9e8230d5e6eef296dd1bee306151a2e4f133a05e2ab469b,1866
 snapshots:
 - completed:
     size: 585817

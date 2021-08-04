@@ -26,11 +26,14 @@ dependencies:
 - directory
 - process
 - turtle
-- plugins
 - configurator
 - pretty-simple
 - text
 - unordered-containers
+- hs-duktape
+- bytestring
+- aeson
+- aeson-lens
 
 library:
   source-dirs: src
