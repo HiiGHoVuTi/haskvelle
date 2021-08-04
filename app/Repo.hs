@@ -3,6 +3,7 @@ module Repo (
   local, load
             ) where
 
+import Control.Exception
 import Turtle hiding (find, match)
 import System.Console.StructuredCLI
 import System.Process
@@ -27,6 +28,17 @@ existsWithWildCare path looked = do
     getSubs p = map ((p<>"/") <>) <$> listDirectory p
 
 
+loadFromGithubToFolder :: String -> String -> IO ()
+loadFromGithubToFolder src dist = do
+  let url = "https://github.com/" <> src <> ".git"
+  tmp <- getTemporaryDirectory
+  let tmp_path = tmp <> "/" <> src
+  _ <- callCommand $ "git clone " <> url <> " " <> tmp_path <> " --depth 1"
+  _ <- rmtree$ decodeString$ tmp_path <> "/" <> ".git"
+  _ <- cptree (decodeString tmp_path) (decodeString dist)
+  _ <- rmtree$ decodeString tmp_path
+  return ()
+
 list :: Commands ()
 list = colorCommand "list" "list all local repos" $ do
   dir <- getAppUserDataDirectory "velle"
@@ -40,11 +52,11 @@ list = colorCommand "list" "list all local repos" $ do
 
 pull :: Commands ()
 pull = colorCustom "pull" "pulls a repo from github <author>/<reponame>" $ \args -> do
-  let url = "https://github.com/" <> head args <>".git"
   dir <- getAppUserDataDirectory "velle"
-  _ <- (dir <> "/repos/")
-    <| decodeString <| rmtree
-  _ <- callCommand $ "git clone " <> url <> " " <> dir <> "/repos/" <> head args
+  let path = dir <> "/repos/" <> head args
+  _ <- try$ path
+    <| decodeString <| rmtree :: IO (Either SomeException ())
+  _ <- loadFromGithubToFolder (head args) path
   return NoAction
 
 load :: Commands ()
@@ -54,9 +66,11 @@ load = colorCustom "load" "loads a repo, either from local files, or from github
   match <- existsWithWildCare dest (head args)
   _ <- case match of
     Just path -> cptree (decodeString path) (decodeString ".")
-    Nothing   -> let
-      url = "https://github.com/" <> head args <>".git"
-      in callCommand $ "git clone " <> url <> " ."
+    Nothing   -> loadFromGithubToFolder (head args) "."
+  let loc = case match of
+        Just _  -> "local"
+        Nothing -> "GitHub"
+  putStrLn ("Successfully loaded repo from "#Success <> loc #Name <> " !"#Success)
   return NoAction
 
 save :: Commands ()
@@ -71,7 +85,7 @@ save = colorCommand "save" "saves the current folder as a local repo" $ do
   path <- return$ dir <>"/repos/"<> username <>"/"<> case project of
     Just name -> name
     Nothing   -> error ("Velle isn't init in this directory." #Error)
-  _ <- removeDirectoryRecursive path
+  _ <- try$ rmtree.decodeString$ path :: IO (Either SomeException ())
   _ <- createDirectory path
   _ <- cptree (decodeString ".") (decodeString path)
   putStrLn (("Successfully saved your current project !") #Success)
