@@ -21,11 +21,12 @@ jobs:
       - name: Release file
         uses: djnicholson/release-action@v2.10
         with:
-          # GitHub auth token
           token: ${{ secrets.API_TOKEN_GITHUB }}
           release-name: Linux build
           asset-name: haskvelle
           file: ./velle
+          overwrite: true
+          prerelease: true
   release-windows:
     runs-on: windows-latest
 
