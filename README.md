@@ -24,3 +24,7 @@ If all goes well, the shell should guide you through the installation. Otherwise
 
 The logic is the same here, you can hop on [the releases tab](https://github.com/HiiGHoVuTi/haskvelle/releases), and grab the executable. However, you don't need to go through the installation procedure, you just need to move it to the same folder as the old executable, renaming it to `velle`. 
 > Please note that your outdated velle might not have the proper `main.cfg` file, please grab the default one in this repository's `public-files` folder if you have any issue.
+
+## Scripting
+
+Velle is now scriptable using JavaScript ! When you type `run <command>` in Velle, it'll fetch `commands.<command>` in the config files in `.velle`. If one of the commands starts with `interp`, it'll run the corresponding javascript file. Velle runs a special subset of javascript based on Duktape. It doesn't support modern javascript sugar nor node modules, but has access to some unique functions, which will be documented soon. For a simple example, you can have a look at `public-files`, or this project's `.velle`. Yes, the manivelle developpers use Velle to make Velle !

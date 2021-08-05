@@ -35,6 +35,8 @@ function main() {
         cpfile("./haskvelle", "/home/maxime/.velle/velle"),
         /* OR */ "Couldn't copy the executable file to PATH."
     );
+
+    rmfile("./haskvelle");
 }
 
 main();
