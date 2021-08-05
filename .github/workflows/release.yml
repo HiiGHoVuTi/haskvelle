@@ -26,7 +26,6 @@ jobs:
           asset-name: haskvelle
           file: ./velle
           overwrite: true
-          prerelease: true
   release-windows:
     runs-on: windows-latest
 
