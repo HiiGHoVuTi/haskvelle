@@ -33,7 +33,7 @@ dependencies:
 - hs-duktape
 - bytestring
 - aeson
-- aeson-lens
+- time
 
 library:
   source-dirs: src

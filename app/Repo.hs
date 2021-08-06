@@ -9,6 +9,7 @@ import System.Console.StructuredCLI
 import System.Process
 import System.Directory
 import qualified Data.List
+import Interpreter
 import Colors
 import Utils
 
@@ -19,11 +20,11 @@ existsWithWildCare :: String -> String -> IO (Maybe String)
 existsWithWildCare path looked = do
   subpaths <- getSubs path
   subsubpaths <- subpaths
-    <| map getSubs
-    <| sequence
+    |> map getSubs
+    |> sequence
   concat subsubpaths
-    <| Data.List.find (Data.List.isSuffixOf looked)
-    <| return
+    |> Data.List.find (Data.List.isSuffixOf looked)
+    |> return
   where
     getSubs p = map ((p<>"/") <>) <$> listDirectory p
 
@@ -36,8 +37,12 @@ loadFromGithubToFolder src dist = do
   _ <- callCommand $ "git clone " <> url <> " " <> tmp_path <> " --depth 1"
   _ <- rmtree$ decodeString$ tmp_path <> "/" <> ".git"
   _ <- cptree (decodeString tmp_path) (decodeString dist)
+  source <- getConfigPropFromFolder (tmp_path<>"/"<>".velle") "commands.on.loaded"
+  _ <- (eval noImports (dist<>"/.velle") <$> source) ?: return ()
   _ <- rmtree$ decodeString tmp_path
   return ()
+  where
+    noImports = [] :: [(String, () -> IO ())]
 
 list :: Commands ()
 list = colorCommand "list" "list all local repos" $ do
@@ -45,8 +50,8 @@ list = colorCommand "list" "list all local repos" $ do
   let repos = dir <> "/repos/"
   authors <- listDirectory $ repos
   repoList <- authors
-    <| map (listDirectory . (repos <>))
-    <| sequence
+    |> map (listDirectory . (repos <>))
+    |> sequence
   _ <- prettyPrint repoList
   return NoAction
 
@@ -55,7 +60,7 @@ pull = colorCustom "pull" "pulls a repo from github <author>/<reponame>" $ \args
   dir <- getAppUserDataDirectory "velle"
   let path = dir <> "/repos/" <> head args
   _ <- try$ path
-    <| decodeString <| rmtree :: IO (Either SomeException ())
+    |> decodeString |> rmtree :: IO (Either SomeException ())
   _ <- loadFromGithubToFolder (head args) path
   return NoAction
 
@@ -65,7 +70,10 @@ load = colorCustom "load" "loads a repo, either from local files, or from github
   let dest = dir <> "/repos"
   match <- existsWithWildCare dest (head args)
   _ <- case match of
-    Just path -> cptree (decodeString path) (decodeString ".")
+    Just path -> do
+      cptree (decodeString path) (decodeString ".")
+      source <- getConfigPropFromFolder (path<>"/"<>".velle") "commands.on.loaded"
+      (eval ([]::[(String, () -> IO ())]) ("./.velle") <$> source) ?: return ()
     Nothing   -> loadFromGithubToFolder (head args) "."
   let loc = case match of
         Just _  -> "local"

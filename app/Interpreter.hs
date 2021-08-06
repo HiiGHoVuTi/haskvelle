@@ -1,9 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Interpreter (
-  interpret
+  interpret, eval
                    ) where
 
+import Control.Monad
 import Control.Exception.Base
 import qualified Data.List
 import qualified Data.ByteString.Lazy as B
@@ -21,9 +22,9 @@ import Utils
 
 stringPipeVoid :: (String -> IO ()) -> Value -> IO Value
 stringPipeVoid fn (String val) = do
-  out <- val <| T.unpack
-    <| fn
-    <| try :: IO (Either SomeException ())
+  out <- val |> T.unpack
+    |> fn
+    |> try :: IO (Either SomeException ())
   return $ case out of
     Right _ -> (Bool True)
     _       -> (Bool False)
@@ -35,7 +36,7 @@ stringPipeTwiceVoid fn (String v1) (String v2) = do
     arg1 = T.unpack v1
     arg2 = T.unpack v2
   out <- fn arg1 arg2
-    <| try :: IO (Either SomeException ())
+    |> try :: IO (Either SomeException ())
   return $ case out of
     Right _ -> (Bool True)
     _       -> (Bool False)
@@ -45,9 +46,9 @@ mapJSON :: (FromJSON a, ToJSON b) => (a -> IO b) -> Value -> IO Value
 mapJSON fn val =
   fn
       <$> fromJSON val
-      <| (fmap.fmap) toJSON
+      |> (fmap.fmap) toJSON
       ?. return Null
-      <| ioSafe
+      |> ioSafe
   where
     infixl 2 ?.
     (?.) (Error   _) a = a
@@ -57,9 +58,9 @@ mapJSON2 :: (FromJSON a, FromJSON b, ToJSON c) => (a -> b -> IO c) -> Value -> V
 mapJSON2 fn v1 v2 =
   fn
       <$> fromJSON v1 <*> fromJSON v2
-      <| (fmap.fmap) toJSON
+      |> (fmap.fmap) toJSON
       ?. return Null
-      <| ioSafe
+      |> ioSafe
   where
     infixl 2 ?.
     (?.) (Error   _) a = a
@@ -74,13 +75,13 @@ print' v = do
 log' :: Value -> IO Value
 log' v = do
   v
-    <| show
-    <| words <| tail
-    <| Data.List.intersperse " "
-    <| concat
-    <| tail <| reverse
-    <| tail <| reverse
-    <| putStrLn
+    |> show
+    |> words |> tail
+    |> Data.List.intersperse " "
+    |> concat
+    |> tail |> reverse
+    |> tail |> reverse
+    |> putStrLn
   return Null
 
 exec' :: Value -> IO Value
@@ -89,11 +90,11 @@ exec' = stringPipeVoid callCommand
 readLocalConfig' :: Value -> IO Value
 readLocalConfig' (String val) = do
   res <- val
-    <| T.unpack
-    <| getConfigPropFromFolder ".velle" :: IO (Maybe String)
+    |> T.unpack
+    |> getConfigPropFromFolder ".velle" :: IO (Maybe String)
   res ?: ""
-    <| T.pack <| String
-    <| return
+    |> T.pack |> String
+    |> return
 
 readLocalConfig' _ = return Null
 
@@ -101,11 +102,11 @@ readUserConfig' :: Value -> IO Value
 readUserConfig' (String val) = do
   dir <- getAppUserDataDirectory "velle"
   res <- val
-    <| T.unpack
-    <| getConfigPropFromFolder dir :: IO (Maybe String)
+    |> T.unpack
+    |> getConfigPropFromFolder dir :: IO (Maybe String)
   res ?: ""
-    <| T.pack <| String
-    <| return
+    |> T.pack |> String
+    |> return
 readUserConfig' _ = return Null
 
 mkdir' :: Value -> IO Value
@@ -125,7 +126,7 @@ mkfile' :: Value -> IO Value
 mkfile' = stringPipeVoid (touch . decodeString)
 
 copyfile' :: Value -> Value -> IO Value
-copyfile' = stringPipeTwiceVoid $ \a b -> cp (decodeString a) (decodeString b)
+copyfile' = stringPipeTwiceVoid copyFile
 
 rmfile' :: Value -> IO Value
 rmfile' = stringPipeVoid (rm . decodeString)
@@ -182,16 +183,31 @@ exposeAll duk = do
   _ <- exposeFnDuktape duk Nothing                    (C8.pack        "writeJSON") writeJSON'
   return ()
 
-interpret :: String -> IO ()
-interpret str = do
+interpret :: (FromJSON a, ToJSON b) => [(String, a -> IO b)] -> String -> IO ()
+interpret exposed str = do
   dukm <- createDuktapeCtx
   case dukm of
     Nothing   -> putStrLn ("Couldn't initialise Duktape." #Colors.Error)
     Just duk  -> do
       _ <- exposeAll duk
+      _ <- forM exposed $ \(name, value) -> void$ exposeFnDuktape duk Nothing (C8.pack name)$ mapJSON value
       retVal <- evalDuktape duk $ C8.pack str
       case retVal of
         Left er        -> putStrLn $ "Duktape Error:\n" #Colors.Error <> er
         Right Nothing  -> return()
         Right (Just _) -> return()
   return ()
+
+
+eval :: (FromJSON a, ToJSON b) => [(String, a -> IO b)] -> String -> String -> IO ()
+eval imports path str
+  | Data.List.isPrefixOf "interp" str = do
+    source <- str
+      |> words
+      |> tail
+      |> concat
+      |> (path <>)
+      |> readFile
+    interpret imports source
+  | otherwise = callCommand str
+

@@ -1,17 +1,16 @@
 
 module Core (
-  root, velleInitWork
+  root, velleInitWork, eval
             ) where
 
 import System.Console.StructuredCLI
-import qualified Data.List
 import System.Directory
 import System.Process
 import System.Exit
 import Colors
 import Utils
 
-import Control.Monad (forM_)
+import Control.Monad
 
 import Config
 import Install
@@ -39,26 +38,15 @@ core = do
   shell'
   run
 
-
-eval :: String -> String -> IO ()
-eval path s
-  | Data.List.isPrefixOf "interp" s = do
-    source <- s
-      <| words
-      <| tail
-      <| concat
-      <| (path <>)
-      <| readFile
-    interpret source
-  | otherwise = callCommand s
-
 run :: Commands ()
 run = colorCustom "run" "runs a command from config" $ \x -> do
   list <- getConfigPropFromFolder ".velle" ("commands."<>head x) :: IO (Maybe [String])
   _ <- case list of
-    Just cmds -> forM_ cmds (eval ".velle/")
+    Just cmds -> forM_ cmds $ voidIOSafe . (eval noImports ".velle/")
     Nothing   -> putStrLn ("No commands found." #Error)
   return NoAction
+  where
+    noImports = [] :: [(String, () -> IO ())]
 
 
 shell' :: Commands ()
@@ -66,7 +54,7 @@ shell' = colorCommand "shell" "opens a normal shell" $ do
   dir <- getAppUserDataDirectory "velle"
   cmd <- getConfigPropFromFolder dir "user-preferences.shell"
   case cmd of
-         Just c  -> callCommand c
+         Just c  -> voidIOSafe . callCommand$ c
          Nothing -> putStrLn ("No default shell provided." #Error)
   return NoAction
 
