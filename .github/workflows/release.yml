@@ -18,15 +18,18 @@ jobs:
       - run: |
           stack build
           cp .stack-work/dist/*/*/build/haskvelle-exe/haskvelle-exe ./velle
-      - name: Release file
-        uses: djnicholson/release-action@v2.10
+
+      - name: Upload files to a GitHub release
+        uses: svenstaro/upload-release-action@2.2.1
         with:
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          release-name: Linux build
-          asset-name: haskvelle
+          repo_token: ${{ secrets.API_TOKEN_GITHUB }}
           file: ./velle
+          tag: rolling
+          asset_name: haskvelle
           overwrite: true
           prerelease: true
+          release_name: Linux
+          
   release-windows:
     runs-on: windows-latest
 
