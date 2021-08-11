@@ -18,6 +18,7 @@ jobs:
       - run: |
           stack build
           cp .stack-work/dist/*/*/build/haskvelle-exe/haskvelle-exe ./velle
+          strip -p ./velle
 
       - name: Upload files to a GitHub release
         uses: svenstaro/upload-release-action@2.2.1
