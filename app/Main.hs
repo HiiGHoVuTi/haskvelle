@@ -2,15 +2,21 @@
 
 module Main where
 
-import Control.Monad                 (void)
-import Data.Default                  (def)
-import System.Console.StructuredCLI
+import System.Environment
 
+import CLI
 import Core
-import Events
 import Colors
 
 main :: IO ()
-main = do
-    eventsThread
-    void $ runCLI ("Velle" #Name) def root
+main = getArgs >>= act
+
+act :: [String] -> IO ()
+act ["help"]   = helpT root
+act ["--help"] = helpT root
+act ["-h"]     = helpT root
+act []         = helpT root
+act args = do
+  e <- exists root args
+  if e then run root args
+    else putStrLn$ "Couldn't find your command." #Error

@@ -3,21 +3,24 @@ module Install (
   install
               ) where
 
-import System.Console.StructuredCLI
+--import System.Console.StructuredCLI
+import CLI
 import System.Directory
+import System.Process
 import Colors
 
-install' :: Commands ()
-install' = colorCommand "install" "goes to the installation menu" $ return NewLevel
+install' :: Atom
+install' = colorCommand "install" "goes to the installation menu" $ return $ return ()
 
-install :: Commands () -> Commands ()
-install others = install' >+ do
-  others
-  totalInstallation
+install :: Atom
+install = install' >+
+  [ totalInstallation
+  -- , update
+  ]
 
 
-totalInstallation :: Commands ()
-totalInstallation = colorCommand "whole-installation" "installs manivelle all at once" $ do
+totalInstallation :: Atom
+totalInstallation = colorCommand "full" "installs manivelle all at once" $ \_ -> do
   putStrLn ("Are you running velle directly from the directory it is in ? [y/N] " #Warning)
   rep <- getLine
   case rep of
@@ -40,4 +43,9 @@ totalInstallation = colorCommand "whole-installation" "installs manivelle all at
             <> ".velle/main.cfg" #Name <> " file" #Warning)
   putStrLn ("Please add this file to PATH, you should be all set: "<>appData<>"/")
   putStrLn ("Once done, you'll have access to the"#Success <> " velle "#Name <> "command !"#Success)
-  return$ LevelUp 1
+  return ()
+
+update :: Atom
+update = colorCommand "update" "updates velle (linux only)" $ \_ -> do
+  callCommand $ ""
+  return ()

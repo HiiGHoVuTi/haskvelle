@@ -1,9 +1,9 @@
 
 module Colors (
-  Color(..), (#), colorCommand, colorCustom, prettyPrint
+  Color(..), (#), colorCommand, prettyPrint
               ) where
 
-import System.Console.StructuredCLI
+import CLI
 import Text.Pretty.Simple (pPrint)
 
 data Color
@@ -31,6 +31,7 @@ escape' Normal  = "0"
 (#) :: String -> Color -> String
 (#) src col = escape col <> src <> escape Normal
 
+{-
 colorCommand :: Monad m => String -> String -> m Action -> CommandsT m ()
 colorCommand name help = command name (help #Text)
 
@@ -44,6 +45,14 @@ wordsWhen p s =  case dropWhile p s of
                       "" -> []
                       s' -> w : wordsWhen p s''
                             where (w, s'') = break p s'
+-}
+
+colorCommand :: String -> String -> ([String] -> IO ()) -> Atom
+colorCommand n h fn = Leaf
+                         { name = n
+                         , help = h #Text
+                         , func = fn
+                         }
 
 prettyPrint :: Show a => a -> IO ()
 prettyPrint = pPrint

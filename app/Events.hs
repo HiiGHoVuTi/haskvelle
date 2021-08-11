@@ -2,19 +2,24 @@
 {-# LANGUAGE NumericUnderscores #-}
 
 module Events (
-  eventsThread
+  events
               ) where
 
-import Control.Concurrent (forkIO, threadDelay)
+import Control.Concurrent (threadDelay)
 import Control.Monad
 import System.Directory
 import Data.Time.Clock
 
-import Core
+import Interpreter
 import Utils
+import CLI
+import Colors
+
+events :: Atom
+events = colorCommand "watch" "watches for event in the project" $ return eventsThread
 
 eventsThread :: IO ()
-eventsThread = void . forkIO . forever $ do
+eventsThread = forever $ do
   -- dir <- getAppUserDataDirectory "velle"
   path    <- getConfigPropFromFolder ".velle" "commands.on.changed.folder"
   command <- getConfigPropFromFolder ".velle" "commands.on.changed.do"

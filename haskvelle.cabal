@@ -50,6 +50,7 @@ library
 executable haskvelle-exe
   main-is: Main.hs
   other-modules:
+      CLI
       Colors
       Config
       Core
