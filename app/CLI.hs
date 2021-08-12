@@ -67,9 +67,8 @@ helpT a = do
 
 helpA :: String -> Atom -> IO ()
 helpA t Node{..} = do
-  _ <- putStrLn $ t <> name
-  _ <- forM_ children (helpA (t<>"   "))
-  putStr"\n"
+  _ <- putStrLn $ "\n" <> t <> name
+  forM_ children (helpA (t<>"   "))
 helpA t leaf = putStrLn $ t <> printHelp leaf
 
 printHelp :: Atom -> String

@@ -41,9 +41,10 @@ globalConfigGroup = colorCommand "display-global" "displays a namespace from the
         prettyPrint map'
         return ()
 
-config :: Atom
-config = config' >+
-  [ configDisplayGroup
+config :: Atom -> Atom
+config x = config' >+
+  [ x
+  , configDisplayGroup
   , configDisplay
   , globalConfigGroup
   ]

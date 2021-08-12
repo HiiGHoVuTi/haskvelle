@@ -51,7 +51,7 @@ executables:
     - -Wincomplete-record-updates
     - -Wincomplete-uni-patterns
     - -Wredundant-constraints
-    - -O3
+    - -O2
     dependencies:
     - haskvelle
 

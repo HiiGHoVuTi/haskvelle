@@ -27,6 +27,11 @@ function main() {
     );
 
     check(
+        exec("strip -p ./haskvelle"),
+        /* OR */ "Couldn't strip down the executable."
+    );
+
+    check(
         exec("python ./print-size.py"),
         /* OR */ "Failed to execute python file."
     );

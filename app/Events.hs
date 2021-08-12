@@ -16,7 +16,7 @@ import CLI
 import Colors
 
 events :: Atom
-events = colorCommand "watch" "watches for event in the project" $ return eventsThread
+events = colorCommand "watch" "watches for events in the project" $ return eventsThread
 
 eventsThread :: IO ()
 eventsThread = forever $ do

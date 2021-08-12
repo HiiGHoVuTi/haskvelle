@@ -23,7 +23,7 @@ root =
   , events
   , load
   , local
-  , config >+ [velleInit]
+  , config velleInit
   , install
   ]
 
