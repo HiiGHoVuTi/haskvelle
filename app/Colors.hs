@@ -15,7 +15,6 @@ data Color
   | Success
   | Normal
 
-
 escape :: Color -> String
 escape col = "\ESC[" <> escape' col <> "m"
 
@@ -30,22 +29,6 @@ escape' Normal  = "0"
 
 (#) :: String -> Color -> String
 (#) src col = escape col <> src <> escape Normal
-
-{-
-colorCommand :: Monad m => String -> String -> m Action -> CommandsT m ()
-colorCommand name help = command name (help #Text)
-
-colorCustom :: Monad m => String -> String -> Handler m [String] -> CommandsT m ()
-colorCustom name help = custom name (help #Text) parser (return True)
-  where parser = paramParser help valid
-        valid  = return . return . wordsWhen (== ',')
-
-wordsWhen     :: (Char -> Bool) -> String -> [String]
-wordsWhen p s =  case dropWhile p s of
-                      "" -> []
-                      s' -> w : wordsWhen p s''
-                            where (w, s'') = break p s'
--}
 
 colorCommand :: String -> String -> ([String] -> IO ()) -> Atom
 colorCommand n h fn = Leaf

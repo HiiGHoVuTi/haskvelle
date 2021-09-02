@@ -41,7 +41,7 @@ traverseForChange cmd path = do
     branch now p = do
       isDir <- doesDirectoryExist (path</>p)
       if isDir
-        then traverseForChange cmd p
+        then traverseForChange cmd (path</>p)
         else voidIOSafe$ fileCheck cmd now (path</>p)
 
 fileCheck :: String -> UTCTime -> String -> IO ()
