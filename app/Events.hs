@@ -20,15 +20,20 @@ events = colorCommand "watch" "watches for events in the project" $ return event
 
 eventsThread :: IO ()
 eventsThread = forever $ do
-  -- dir <- getAppUserDataDirectory "velle"
-  path    <- getConfigPropFromFolder ".velle" "commands.on.changed.folder"
-  command <- getConfigPropFromFolder ".velle" "commands.on.changed.do"
-  _ <- (traverseForChange
+  path'cmd <- getConfigPropFromFolder ".velle" "commands.on.changed" -- Reads the Maybe Value
+    |> ((?: []) <$>)                                                 -- Replaces with an empty array if Nothing
+  -- command <- getConfigPropFromFolder ".velle" "commands.on.changed.do"
+  {-_ <- (traverseForChange
         <$> command
         <*> path)
-       ?: return()
-  threadDelay 1_000_000 -- wait a second
+       ?: putStrLn "No watch commands indicated."
+  -}
+  forM path'cmd traverseForChange'
+  >> threadDelay 1_000_000 -- wait a second
 
+  where
+    traverseForChange' [path, command] = (traverseForChange command path)
+    traverseForChange' _               = putStrLn ("Invalid configuration file." #Error)
 
 traverseForChange :: String -> String -> IO ()
 traverseForChange cmd path = do
