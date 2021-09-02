@@ -60,10 +60,10 @@ if your config looks like so:
 ```cfg
 commands {
     on {
-        changed {
-            folder = "src"
-            do     = "interp compile.js"
-        }
+        changed =
+            [ ["src", "interp compile.js"  ]
+            , ["res", "interp updateRes.js"]
+            ]
     }
 }
 ```
