@@ -9,16 +9,18 @@ import System.Directory
 import System.Process
 import Colors
 
+-- | The install node, does nothing when called
 install' :: Atom
-install' = colorCommand "install" "goes to the installation menu" $ return $ return ()
+install' = colorCommand "install" "goes to the installation menu" $ return.const ()
 
+-- | The public install Node, includes all installation commands
 install :: Atom
 install = install' >+
   [ totalInstallation
   -- , update
   ]
 
-
+-- | All the IO logic behind a total installation of velle.
 totalInstallation :: Atom
 totalInstallation = colorCommand "full" "installs manivelle all at once" $ \_ -> do
   putStrLn ("Are you running velle directly from the directory it is in ? [y/N] " #Warning)
@@ -45,6 +47,7 @@ totalInstallation = colorCommand "full" "installs manivelle all at once" $ \_ ->
   putStrLn ("Once done, you'll have access to the"#Success <> " velle "#Name <> "command !"#Success)
   return ()
 
+-- | WIP.
 update :: Atom
 update = colorCommand "update" "updates velle (linux only)" $ \_ -> do
   callCommand $ ""

@@ -17,30 +17,34 @@ import qualified Data.List (isPrefixOf)
 import Data.Text (pack)
 import Colors
 
+-- | Function composition, reverse (.)
 infixl 7 &
 (&) :: (a -> b) -> (b -> c) -> a -> c
 (&) f g = g . f
 
+-- | Piping operator
 infixl 2 |>
 (|>) :: a -> (a -> b) -> b
 (|>) x f = f x
 
+-- | Maybe default operator
 infix 5 ?:
 (?:) :: Maybe a -> a -> a
 (?:) Nothing  x = x
 (?:) (Just x) _ = x
 
+-- | Join paths with a "/" in between
 (</>) :: String -> String -> String
 (</>) a b = a <> "/" <> b
 
-
+-- | Obtains the key-value map from the config directory
 getConf :: String -> IO (HashMap Name Value)
 getConf dir = do
   files <- listDirectory dir
   cfg <- load . map (Optional . reverse) . filter (Data.List.isPrefixOf "gfc.") . map (reverse . ((dir<>"/") <>)) $ files
   getMap cfg
 
-
+-- | Obtains a single property from the config directory
 getConfigPropFromFolder :: Configured a => String -> String -> IO (Maybe a)
 getConfigPropFromFolder dir prop = do
   map' <- getConf dir
@@ -48,7 +52,7 @@ getConfigPropFromFolder dir prop = do
       cmd  = cmd' >>= convert
     in return cmd
 
-
+-- | Prevents an IO action from crashing, prints the error in case of fail
 voidIOSafeError :: IO () -> IO ()
 voidIOSafeError io = let
      try' :: IO b -> IO (Either SomeException b) ; try' = try
@@ -59,6 +63,7 @@ voidIOSafeError io = let
                  Right                 _ -> return ())
      |> join
 
+-- | Totally ignores failure of an IO action
 voidIOSafe :: IO () -> IO ()
 voidIOSafe io = let
      try' = try :: IO b -> IO (Either SomeException b)
@@ -66,6 +71,7 @@ voidIOSafe io = let
      |> try'
      |> void
 
+-- | Replaces an IO crash by a Null return value
 ioSafe :: IO A.Value -> IO A.Value
 ioSafe io = let
      try' = try :: IO b -> IO (Either SomeException b)

@@ -8,9 +8,11 @@ import CLI
 import Core
 import Colors
 
+-- | Simple main
 main :: IO ()
 main = getArgs >>= act
 
+-- | Detects any of the help arguments, if none, execute the root Atom
 act :: [String] -> IO ()
 act ["help"]   = helpT root
 act ["--help"] = helpT root

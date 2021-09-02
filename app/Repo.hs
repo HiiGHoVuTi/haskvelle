@@ -14,11 +14,13 @@ import Interpreter
 import Colors
 import Utils
 
+-- | Main node for the local management, does nothing when called
 local' :: Atom
-local' = colorCommand "local" "manage local repos" $ return $ return ()
+local' = colorCommand "local" "manage local repos" $ return.const ()
 
-existsWithWildCare :: String -> String -> IO (Maybe String)
-existsWithWildCare path looked = do
+-- | Tries to find a local repository, not knowing the name of the author
+existsWithWildCard :: String -> String -> IO (Maybe String)
+existsWithWildCard path looked = do
   subpaths <- getSubs path
   subsubpaths <- subpaths
     |> map getSubs
@@ -29,7 +31,7 @@ existsWithWildCare path looked = do
   where
     getSubs p = map ((p<>"/") <>) <$> listDirectory p
 
-
+-- | IO logic for loading a repo from github, basically "npx degit"
 loadFromGithubToFolder :: String -> String -> IO ()
 loadFromGithubToFolder src dist = do
   let url = "https://github.com/" <> src <> ".git"
@@ -45,6 +47,7 @@ loadFromGithubToFolder src dist = do
   where
     -- noImports = [] :: [(String, () -> IO ())]
 
+-- | Atom that lists all local repositories
 list :: Atom
 list = colorCommand "list" "list all local repos" $ \_ -> do
   dir <- getAppUserDataDirectory "velle"
@@ -56,6 +59,7 @@ list = colorCommand "list" "list all local repos" $ \_ -> do
   _ <- prettyPrint repoList
   return ()
 
+-- | Atom for pulling a repository from GitHub
 pull :: Atom
 pull = colorCommand "pull" "pulls a repo from github <author>/<reponame>" $ \args -> do
   dir <- getAppUserDataDirectory "velle"
@@ -65,11 +69,12 @@ pull = colorCommand "pull" "pulls a repo from github <author>/<reponame>" $ \arg
   _ <- loadFromGithubToFolder (head args) path
   return ()
 
+-- | Atom for loading a repository. Will load from local if it finds it, or default to github
 load :: Atom
 load = colorCommand "load" "loads a repo, either from local files, or from github" $ \args -> do
   dir <- getAppUserDataDirectory "velle"
   let dest = dir <> "/repos"
-  match <- existsWithWildCare dest (head args)
+  match <- existsWithWildCard dest (head args)
   _ <- case match of
     Just path -> do
       cptree (decodeString path) (decodeString ".")
@@ -80,8 +85,8 @@ load = colorCommand "load" "loads a repo, either from local files, or from githu
         Just _  -> "local"
         Nothing -> "GitHub"
   putStrLn ("Successfully loaded repo from "#Success <> loc #Name <> " !"#Success)
-  return ()
 
+-- | Atom for saving the cwd to a local repository, requires the global "github.username" field to be filled
 save :: Atom
 save = colorCommand "save" "saves the current folder as a local repo" $ \_ -> do
   dir <- getAppUserDataDirectory "velle"
@@ -100,8 +105,10 @@ save = colorCommand "save" "saves the current folder as a local repo" $ \_ -> do
   putStrLn (("Successfully saved your current project !") #Success)
   return ()
 
+-- TODO(Maxime): make the publish Atom
 -- publish
 
+-- | Public node for local manipulation
 local :: Atom
 local = local' >+
   [ list

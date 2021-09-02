@@ -17,6 +17,7 @@ import Repo
 import Interpreter
 import Events
 
+-- | The main set of commands, including everything the user sees when typing "velle -h"
 root :: [Atom]
 root =
   [ run
@@ -27,7 +28,7 @@ root =
   , install
   ]
 
-
+-- | Interprets a command from the commands section in the config. Commands may be shell commands, or "interp file.js", where the file is written in velle-js
 run :: Atom
 run = colorCommand "run" "runs a command from config" $ \x -> do
   list <- getConfigPropFromFolder ".velle" ("commands."<>head x) :: IO (Maybe [String])
@@ -38,12 +39,11 @@ run = colorCommand "run" "runs a command from config" $ \x -> do
   where
     noImports = [] :: [(String, () -> IO ())]
 
-
+-- | Inits the .velle folder in the cwd
 velleInit :: Atom
-velleInit = colorCommand "init" "initialize velle in cwd" $ \_ -> do
-  _ <- velleInitWork
-  return ()
+velleInit = colorCommand "init" "initialize velle in cwd" $ const velleInitWork
 
+-- | The IO logic and logging behind setting up the .velle folder
 velleInitWork :: IO ()
 velleInitWork = do
   cwd' <- (reverse.takeWhile (/= '/').reverse) <$> getCurrentDirectory

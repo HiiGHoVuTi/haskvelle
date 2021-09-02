@@ -13,15 +13,18 @@ import Colors
 
 import Utils
 
+-- | The Node for the config menu, function does nothing
 config' :: Atom
-config' = colorCommand "config" "goes to the config menu" $ return $ return ()
+config' = colorCommand "config" "goes to the config menu" $ return.const ()
 
+-- | Displays the config when called
 configDisplay :: Atom
 configDisplay = colorCommand "display" "displays the whole config file as a list of key/value pairs" $ \_ ->do
         map' <- getConf ".velle"
         prettyPrint map'
         return ()
 
+-- | Displays a single namespace in the config when called
 configDisplayGroup :: Atom
 configDisplayGroup = colorCommand "display-namespace" "displays a single namespace in the config" $ \x -> do
         map' <- let
@@ -31,6 +34,7 @@ configDisplayGroup = colorCommand "display-namespace" "displays a single namespa
         prettyPrint map'
         return ()
 
+-- | Displays a single namespace from the *global* config when called
 globalConfigGroup :: Atom
 globalConfigGroup = colorCommand "display-global" "displays a namespace from the global config" $ \x -> do
         dir <- getAppUserDataDirectory "velle"
@@ -41,6 +45,7 @@ globalConfigGroup = colorCommand "display-global" "displays a namespace from the
         prettyPrint map'
         return ()
 
+-- | The public Node which handles everything config related
 config :: Atom -> Atom
 config x = config' >+
   [ x

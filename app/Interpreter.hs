@@ -19,7 +19,7 @@ import qualified Colors
 import Colors hiding (Error, Success)
 import Utils
 
-
+-- | Maps a (String -> IO ()) function to JS space
 stringPipeVoid :: (String -> IO ()) -> Value -> IO Value
 stringPipeVoid fn (String val) = do
   out <- val |> T.unpack
@@ -30,6 +30,7 @@ stringPipeVoid fn (String val) = do
     _       -> (Bool False)
 stringPipeVoid _ _ = return Null
 
+-- | Maps a (String -> String -> IO ()) function to JS world
 stringPipeTwiceVoid :: (String -> String -> IO ()) -> Value -> Value -> IO Value
 stringPipeTwiceVoid fn (String v1) (String v2) = do
   let
@@ -42,6 +43,7 @@ stringPipeTwiceVoid fn (String v1) (String v2) = do
     _       -> (Bool False)
 stringPipeTwiceVoid _ _ _ = return Null
 
+-- | Maps any arbitrary (a -> IO b) function to JS world
 mapJSON :: (FromJSON a, ToJSON b) => (a -> IO b) -> Value -> IO Value
 mapJSON fn val =
   fn
@@ -54,6 +56,7 @@ mapJSON fn val =
     (?.) (Error   _) a = a
     (?.) (Success a) _ = a
 
+-- | Maps any arbitrary (a -> b -> IO c) function to JS world
 mapJSON2 :: (FromJSON a, FromJSON b, ToJSON c) => (a -> b -> IO c) -> Value -> Value -> IO Value
 mapJSON2 fn v1 v2 =
   fn
@@ -66,12 +69,13 @@ mapJSON2 fn v1 v2 =
     (?.) (Error   _) a = a
     (?.) (Success a) _ = a
 
-
+-- | Debug printing function, prettyPrints the argument and returns it unchanged
 print' :: Value -> IO Value
 print' v = do
   prettyPrint v
-  return$ v
+  return v
 
+-- | String-only print, doesn't return any result, quite slow
 log' :: Value -> IO Value
 log' v = do
   v
@@ -84,29 +88,39 @@ log' v = do
     |> putStrLn
   return Null
 
+-- | Executes a shell command from a string argument
 exec' :: Value -> IO Value
 exec' = stringPipeVoid callCommand
 
+-- TODO(Maxime): Avoid code duplication in the readXConfig' functions
+
+-- | Reads project (local) configuration using the key given as an argument, returns null if incorrect argument or not found
 readLocalConfig' :: Value -> IO Value
 readLocalConfig' (String val) = do
   res <- val
     |> T.unpack
     |> getConfigPropFromFolder ".velle" :: IO (Maybe String)
-  res ?: ""
-    |> T.pack |> String
-    |> return
-
+  final res
+  where
+    final Nothing  = return Null
+    final (Just a) = a
+      |> T.pack |> String
+      |> return
 readLocalConfig' _ = return Null
 
+-- | Reads the user (global) config
 readUserConfig' :: Value -> IO Value
 readUserConfig' (String val) = do
   dir <- getAppUserDataDirectory "velle"
   res <- val
     |> T.unpack
     |> getConfigPropFromFolder dir :: IO (Maybe String)
-  res ?: ""
-    |> T.pack |> String
-    |> return
+  final res
+  where
+    final Nothing  = return Null
+    final (Just a) = a
+      |> T.pack |> String
+      |> return
 readUserConfig' _ = return Null
 
 mkdir' :: Value -> IO Value
@@ -120,7 +134,7 @@ rmdir' = stringPipeVoid (rmtree . decodeString)
 
 lsdir' :: Value -> IO Value
 lsdir' = mapJSON listDirectory
--- lsdir recur
+-- TODO(Maxime): lsdir recur
 
 mkfile' :: Value -> IO Value
 mkfile' = stringPipeVoid (touch . decodeString)
@@ -160,6 +174,7 @@ readline' _ = do
   res <- getLine
   return (String . T.pack$ res)
 
+-- | This function exposes all Velle-JS custom function to the Duktape runtime
 exposeAll :: DuktapeCtx -> IO ()
 exposeAll duk = do
   _ <- exposeFnDuktape duk Nothing                    (C8.pack            "print") print'
@@ -183,6 +198,7 @@ exposeAll duk = do
   _ <- exposeFnDuktape duk Nothing                    (C8.pack        "writeJSON") writeJSON'
   return ()
 
+-- | Interprets a given JS source-code, with an added option of exposing additional functions as (name, a -> IO b) pairs
 interpret :: (FromJSON a, ToJSON b) => [(String, a -> IO b)] -> String -> IO ()
 interpret exposed str = do
   dukm <- createDuktapeCtx
@@ -198,7 +214,7 @@ interpret exposed str = do
         Right (Just _) -> return()
   return ()
 
-
+-- | Evaluates a shell command or JS source-code, given a list of imports as (name, a -> IO b) pairs
 eval :: (FromJSON a, ToJSON b) => [(String, a -> IO b)] -> String -> String -> IO ()
 eval imports path str
   | Data.List.isPrefixOf "interp" str = do
