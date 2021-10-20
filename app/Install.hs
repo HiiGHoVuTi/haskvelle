@@ -31,7 +31,7 @@ totalInstallation = colorCommand "full" "installs manivelle all at once" $ \_ ->
   appData <- getAppUserDataDirectory "velle"
   _ <- createDirectory appData
   -- to refactor using turtle
-  _ <- appendFile (appData<>"/main.cfg") ("user-preferences {\n  shell = \"bash\"\n}\n")
+  _ <- appendFile (appData<>"/main.cfg") "user-preferences {\n  shell = \"bash\"\n}\n"
   putStrLn ("Created the .velle global directory !" #OK)
   _ <- copyFile ("./haskvelle"<>exeExtension) (appData<>"/velle"<>exeExtension)
   putStrLn ("Moved the executable to the correct folder !" #OK)

@@ -35,12 +35,12 @@ commands {
 eventsThread :: IO ()
 eventsThread = forever $ do
   path'cmd <- getConfigPropFromFolder ".velle" "commands.on.changed" -- Reads the Maybe Value
-    |> ((?: []) <$>)                                                 -- Replaces with an empty array if Nothing
+    |> fmap (?: [])                                                  -- Replaces with an empty array if Nothing
   forM path'cmd traverseForChange'
   >> threadDelay 1_000_000 -- wait a second
 
   where
-    traverseForChange' [path, command] = (traverseForChange command path)
+    traverseForChange' [path, command] = traverseForChange command path
     traverseForChange' _               = putStrLn ("Invalid configuration file." #Error)
 
 
@@ -49,8 +49,7 @@ traverseForChange :: String -> String -> IO ()
 traverseForChange cmd path = do
   dirs <- listDirectory path
   now  <- getCurrentTime
-  void$
-    forM dirs (branch now)
+  forM_ dirs (branch now)
   where
     branch :: UTCTime -> FilePath -> IO ()
     branch now p = do
@@ -65,7 +64,7 @@ fileCheck cmd now file = do
   modif   <- getModificationTime file
   let diff = diffUTCTime now modif
   when (diff < (1 :: NominalDiffTime)) $
-    (eval imports ".velle/") cmd
+    eval imports ".velle/" cmd
   where
     imports :: [(String, Int -> IO String)]
     imports = [("changedFile", \_ -> return file)]

@@ -47,7 +47,7 @@ existsA :: [String] -> Atom -> IO Bool
 existsA [] _ = return False
 
 existsA (x:rest) Node{..}
-  | name == x = any (== True) <$> forM children (existsA rest)
+  | name == x = or <$> forM children (existsA rest)
 
 existsA (x:_) Leaf{..}
   | name == x = return True
@@ -60,7 +60,7 @@ run ats args = forM_ ats (runA args)
 
 -- | Checks whether any of the atoms will parse the given strings, calling existsA
 exists :: [Atom] -> [String] -> IO Bool
-exists ats args = any (== True) <$> forM ats (existsA args)
+exists ats args = or <$> forM ats (existsA args)
 
 -- | Prints the help message of a list of Atoms to the screen, calling helpA
 helpT :: [Atom] -> IO ()

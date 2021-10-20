@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Utils (
-  (|>), (?:), (&), (</>),
+  (|>), (?:), (</>),
   getConf, getConfigPropFromFolder,
   ioSafe, voidIOSafe, voidIOSafeError
              ) where
@@ -17,17 +17,12 @@ import qualified Data.List (isPrefixOf)
 import Data.Text (pack)
 import Colors
 
--- | Function composition, reverse (.)
-infixl 7 &
-(&) :: (a -> b) -> (b -> c) -> a -> c
-(&) f g = g . f
-
 -- | Piping operator
 infixl 2 |>
 (|>) :: a -> (a -> b) -> b
 (|>) x f = f x
 
--- | Maybe default operator
+-- | Maybe default operator, (?:) = flip fromMaybe
 infix 5 ?:
 (?:) :: Maybe a -> a -> a
 (?:) Nothing  x = x

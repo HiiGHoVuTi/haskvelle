@@ -44,15 +44,13 @@ loadFromGithubToFolder src dist = do
   -- _ <- (eval noImports (dist<>"/.velle") <$> source) ?: return ()
   _ <- rmtree$ decodeString tmp_path
   return ()
-  where
-    -- noImports = [] :: [(String, () -> IO ())]
 
 -- | Atom that lists all local repositories
 list :: Atom
 list = colorCommand "list" "list all local repos" $ \_ -> do
   dir <- getAppUserDataDirectory "velle"
   let repos = dir <> "/repos/"
-  authors <- listDirectory $ repos
+  authors <- listDirectory repos
   repoList <- authors
     |> map (listDirectory . (repos <>))
     |> sequence
@@ -79,7 +77,7 @@ load = colorCommand "load" "loads a repo, either from local files, or from githu
     Just path -> do
       cptree (decodeString path) (decodeString ".")
       source <- getConfigPropFromFolder (path<>"/"<>".velle") "commands.on.loaded"
-      (eval ([]::[(String, () -> IO ())]) ("./.velle") <$> source) ?: return ()
+      (eval ([]::[(String, () -> IO ())]) "./.velle" <$> source) ?: return ()
     Nothing   -> loadFromGithubToFolder (head args) "."
   let loc = case match of
         Just _  -> "local"
@@ -88,7 +86,7 @@ load = colorCommand "load" "loads a repo, either from local files, or from githu
 
 -- | Atom for saving the cwd to a local repository, requires the global "github.username" field to be filled
 save :: Atom
-save = colorCommand "save" "saves the current folder as a local repo" $ \_ -> do
+save = colorCommand "save" "saves the current folder as a local repo" $ const $ do
   dir <- getAppUserDataDirectory "velle"
   data' <- getConfigPropFromFolder dir "github.username" :: IO (Maybe String)
   username <- return$ case data' of
@@ -102,7 +100,7 @@ save = colorCommand "save" "saves the current folder as a local repo" $ \_ -> do
   _ <- try$ rmtree.decodeString$ path :: IO (Either SomeException ())
   _ <- createDirectory path
   _ <- cptree (decodeString ".") (decodeString path)
-  putStrLn (("Successfully saved your current project !") #Success)
+  putStrLn ("Successfully saved your current project !" #Success)
   return ()
 
 -- TODO(Maxime): make the publish Atom

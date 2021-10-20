@@ -4,6 +4,7 @@ module Interpreter (
   interpret, eval
                    ) where
 
+import Control.Arrow
 import Control.Monad
 import Control.Exception.Base
 import qualified Data.List
@@ -26,8 +27,8 @@ stringPipeVoid fn (String val) = do
     |> fn
     |> try :: IO (Either SomeException ())
   return $ case out of
-    Right _ -> (Bool True)
-    _       -> (Bool False)
+    Right _ -> Bool True
+    _       -> Bool False
 stringPipeVoid _ _ = return Null
 
 -- | Maps a (String -> String -> IO ()) function to JS world
@@ -39,8 +40,8 @@ stringPipeTwiceVoid fn (String v1) (String v2) = do
   out <- fn arg1 arg2
     |> try :: IO (Either SomeException ())
   return $ case out of
-    Right _ -> (Bool True)
-    _       -> (Bool False)
+    Right _ -> Bool True
+    _       -> Bool False
 stringPipeTwiceVoid _ _ _ = return Null
 
 -- | Maps any arbitrary (a -> IO b) function to JS world
@@ -160,8 +161,8 @@ readJSON' = mapJSON readJSON''
     readJSON'' :: String -> IO Value
     readJSON''
       = B.readFile
-      & fmap decode
-      & fmap (?: Null)
+      >>> fmap decode
+      >>> fmap (?: Null)
 
 writeJSON' :: Value -> Value -> IO Value
 writeJSON' = mapJSON2 writeJSON''
@@ -206,7 +207,7 @@ interpret exposed str = do
     Nothing   -> putStrLn ("Couldn't initialise Duktape." #Colors.Error)
     Just duk  -> do
       _ <- exposeAll duk
-      _ <- forM exposed $ \(name, value) -> void$ exposeFnDuktape duk Nothing (C8.pack name)$ mapJSON value
+      forM_ exposed $ \(name, value) -> void$ exposeFnDuktape duk Nothing (C8.pack name)$ mapJSON value
       retVal <- evalDuktape duk $ C8.pack str
       case retVal of
         Left er        -> putStrLn $ "Duktape Error:\n" #Colors.Error <> er
@@ -217,7 +218,7 @@ interpret exposed str = do
 -- | Evaluates a shell command or JS source-code, given a list of imports as (name, a -> IO b) pairs
 eval :: (FromJSON a, ToJSON b) => [(String, a -> IO b)] -> String -> String -> IO ()
 eval imports path str
-  | Data.List.isPrefixOf "interp" str = do
+  | "interp" `Data.List.isPrefixOf` str = do
     source <- str
       |> words
       |> tail
