@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 
-name:           haskvelle
+name:           velle
 version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/HiiGHoVuTi/haskvelle#readme>
 homepage:       https://github.com/HiiGHoVuTi/haskvelle#readme
@@ -23,7 +23,7 @@ source-repository head
   type: git
   location: https://github.com/HiiGHoVuTi/haskvelle
 
-executable haskvelle-exe
+executable velle
   main-is: Main.hs
   other-modules:
       CLI
@@ -35,7 +35,7 @@ executable haskvelle-exe
       Interpreter
       Repo
       Utils
-      Paths_haskvelle
+      Paths_velle
   hs-source-dirs:
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -O2
@@ -60,7 +60,7 @@ test-suite haskvelle-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_haskvelle
+      Paths_velle
   hs-source-dirs:
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N

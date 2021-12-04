@@ -1,4 +1,5 @@
-name:                haskvelle
+# nix-shell --packages cabal2nix --run "cabal2nix ." > default.nix
+name:                velle
 version:             0.1.0.0
 github:              "HiiGHoVuTi/haskvelle"
 license:             BSD3
@@ -36,7 +37,7 @@ dependencies:
 - time
 
 executables:
-  haskvelle-exe:
+  velle:
     main:                Main.hs
     source-dirs:         app
     ghc-options:

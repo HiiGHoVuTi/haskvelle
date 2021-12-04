@@ -7,7 +7,7 @@
   ]
 */
 
-const EXE_PATH = ".stack-work/dist/x86_64-linux-tinfo6/Cabal-3.2.1.0/build/haskvelle-exe/haskvelle-exe";
+const EXE_PATH = "./result/bin/velle"
 
 function main() {
     function check (cmd, msg) {
@@ -16,32 +16,16 @@ function main() {
     }
 
     check(
-        exec("stack build"),
+        exec("nix-build release.nix"),
         /* OR */ "Couldn't build."
     );
 
-
     check(
-        cpfile(EXE_PATH, "./haskvelle"),
-        /* OR */ "Couldn't find executable file."
-    );
-
-    check(
-        exec("strip -p ./haskvelle"),
-        /* OR */ "Couldn't strip down the executable."
-    );
-
-    check(
-        exec("python ./print-size.py"),
-        /* OR */ "Failed to execute python file."
-    );
-
-    check(
-        cpfile("./haskvelle", "/home/maxime/.velle/velle"),
+        cpfile(EXE_PATH, "/home/maxime/.velle/velle"),
         /* OR */ "Couldn't copy the executable file to PATH."
     );
 
-    rmfile("./haskvelle");
+    rmdir("./result");
 }
 
 main();

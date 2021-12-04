@@ -3,7 +3,7 @@
 , structured-cli, text, time, turtle, unordered-containers
 }:
 mkDerivation {
-  pname = "haskvelle";
+  pname = "velle";
   version = "0.1.0.0";
   src = ./.;
   isLibrary = false;

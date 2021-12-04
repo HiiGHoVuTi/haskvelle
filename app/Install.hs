@@ -6,7 +6,6 @@ module Install (
 --import System.Console.StructuredCLI
 import CLI
 import System.Directory
-import System.Process
 import Colors
 
 -- | The install node, does nothing when called
@@ -45,10 +44,4 @@ totalInstallation = colorCommand "full" "installs manivelle all at once" $ \_ ->
             <> ".velle/main.cfg" #Name <> " file" #Warning)
   putStrLn ("Please add this file to PATH, you should be all set: "<>appData<>"/")
   putStrLn ("Once done, you'll have access to the"#Success <> " velle "#Name <> "command !"#Success)
-  return ()
-
--- | WIP.
-update :: Atom
-update = colorCommand "update" "updates velle (linux only)" $ \_ -> do
-  callCommand $ ""
-  return ()
+  pure ()
