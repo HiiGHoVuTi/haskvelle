@@ -72,4 +72,6 @@ extra-deps:
 #
 nix:
   enable: true
-  packages: [zlib.dev, zlib.out]
+  pure: true
+  # shell-file: shell.nix
+  packages: [zlib.out, zlib.dev]
