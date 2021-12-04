@@ -23,30 +23,6 @@ source-repository head
   type: git
   location: https://github.com/HiiGHoVuTi/haskvelle
 
-library
-  exposed-modules:
-      Lib
-  other-modules:
-      Paths_haskvelle
-  hs-source-dirs:
-      src
-  build-depends:
-      aeson
-    , base >=4.7 && <5
-    , bytestring
-    , configurator
-    , data-default
-    , directory
-    , hs-duktape
-    , pretty-simple
-    , process
-    , structured-cli
-    , text
-    , time
-    , turtle
-    , unordered-containers
-  default-language: Haskell2010
-
 executable haskvelle-exe
   main-is: Main.hs
   other-modules:
@@ -70,7 +46,6 @@ executable haskvelle-exe
     , configurator
     , data-default
     , directory
-    , haskvelle
     , hs-duktape
     , pretty-simple
     , process
@@ -96,7 +71,6 @@ test-suite haskvelle-test
     , configurator
     , data-default
     , directory
-    , haskvelle
     , hs-duktape
     , pretty-simple
     , process

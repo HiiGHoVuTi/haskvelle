@@ -67,4 +67,4 @@ fileCheck cmd now file = do
     eval imports ".velle/" cmd
   where
     imports :: [(String, Int -> IO String)]
-    imports = [("changedFile", \_ -> return file)]
+    imports = [("changedFile", \_ -> pure file)]
